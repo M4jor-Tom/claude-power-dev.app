@@ -27,10 +27,10 @@ curl chromium imagemagick rtk graphify markitdown pandoc poppler-utils yt-dlp`
 
 `nixpkgs#claude-code` already sets `DISABLE_AUTOUPDATER=1`,
 `DISABLE_INSTALLATION_CHECKS=1` and `USE_BUILTIN_RIPGREP=0`, defaults
-`FORCE_AUTOUPDATE_PLUGINS=1`, and puts `ripgrep`, `procps`, `bubblewrap` and
-`socat` on Claude Code's own PATH. The flake allows unfree packages for its own
-nixpkgs, because `claude-code` is unfree — without that, `nix run` would fail
-before building anything.
+`FORCE_AUTOUPDATE_PLUGINS=1`, and always puts `ripgrep` and `procps` on Claude
+Code's own PATH, plus `bubblewrap` and `socat` there too on Linux. The flake
+allows unfree packages for its own nixpkgs, because `claude-code` is unfree —
+without that, `nix run` would fail before building anything.
 
 ## Plugins on a fresh clone
 
