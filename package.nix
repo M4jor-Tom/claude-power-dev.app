@@ -1,4 +1,5 @@
 { lib
+, stdenv
 , writeShellApplication
 , claude-code
 , git
@@ -49,7 +50,6 @@ writeShellApplication {
     python3
     sqlite
     curl
-    chromium
     imagemagick
     rtk
     graphify
@@ -57,7 +57,10 @@ writeShellApplication {
     pandoc
     poppler-utils
     yt-dlp
-  ];
+    # chromium is Linux-only in nixpkgs at this rev; listing it unconditionally
+    # makes the package fail to evaluate on Darwin at all. It stays out of the
+    # base list and comes back only where nixpkgs actually builds it.
+  ] ++ lib.optionals stdenv.hostPlatform.isLinux [ chromium ];
 
   # The config repo is a git working tree, never a store symlink: Claude Code
   # writes settings.local.json, sessions and the plugin cache next to the
@@ -77,6 +80,8 @@ writeShellApplication {
       # tree keeps its local edits, always; an unrelated checkout is never
       # touched.
       if git -C "$DIR" pull --ff-only --quiet; then
+        # Only runs after a successful pull: a failed pull leaves the
+        # gitlinks unmoved, so there's nothing new for submodules to track.
         git -C "$DIR" submodule update --init --recursive --quiet \
           || echo "${profileName}: submodule update failed" >&2
       else
@@ -92,6 +97,8 @@ writeShellApplication {
     description = "Claude Code running the ${profileName} profile";
     homepage = "https://github.com/M4jor-Tom/${profileName}.app";
     mainProgram = profileName;
-    platforms = lib.platforms.unix;
+    # claude-code is the actual constraint on what this can support; naming
+    # its own platforms beats claiming all of lib.platforms.unix.
+    platforms = claude-code.meta.platforms;
   };
 }
