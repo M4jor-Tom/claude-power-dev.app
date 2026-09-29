@@ -23,7 +23,8 @@ CLAUDE_CONFIG_DIR=~/.claude-power-dev claude
 ## What it ships
 
 `claude-code git gh glab nodejs bun pnpm ripgrep fd jq yq-go uv python3 sqlite
-curl chromium imagemagick rtk graphify markitdown pandoc poppler-utils yt-dlp`
+curl imagemagick rtk graphify markitdown pandoc poppler-utils yt-dlp`, plus
+`chromium` on Linux — nixpkgs doesn't build it for Darwin.
 
 `nixpkgs#claude-code` already sets `DISABLE_AUTOUPDATER=1`,
 `DISABLE_INSTALLATION_CHECKS=1` and `USE_BUILTIN_RIPGREP=0`, defaults
@@ -38,15 +39,17 @@ The profile declares its marketplaces in `settings.json`
 (`extraKnownMarketplaces`) and its plugins in `enabledPlugins`. Claude Code
 clones a declared-but-missing marketplace and downloads its enabled plugins in
 the background *after* the session starts, so on a brand-new machine log in
-first and the plugins follow. `claude plugin marketplace update` forces it.
+first and the plugins follow. There is no flag that forces this sooner —
+starting the session is what triggers it.
 
 ## Deliberately absent
 
 `playwright-driver` is not shipped: the `playwright-cli` skill installs
 `@playwright/cli` through npm and manages its own browsers. `chromium` *is*
-shipped, because the playwright MCP server, claude-mem's `wowerpoint` and
-ui-ux-pro-max's image export all need a browser, and Playwright's own download
-segfaults on NixOS.
+shipped on Linux, because the playwright MCP server, claude-mem's
+`wowerpoint` and ui-ux-pro-max's image export all need a browser, and
+Playwright's own download segfaults on NixOS. nixpkgs has no `chromium` for
+Darwin, so those skills need a browser from somewhere else there.
 
 One thing this wrapper cannot fix: `claude-mem`'s hooks prepend `~/.nvm/…`,
 `~/.local/bin`, `/usr/local/bin` and `/opt/homebrew/bin` to PATH, so a stray
